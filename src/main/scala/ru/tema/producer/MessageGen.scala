@@ -7,7 +7,11 @@ import scala.util.Random
 
 case class Message(id: Int, from: String, to: String, text: String, ctime: LocalTime)
 
-object MessageGen {
+trait Generator[T] {
+  def apply(): T
+}
+
+class MessageGen extends Generator[Message] {
 
   private val id = new AtomicInteger(1)
   private val topHeroes = Seq("Spider-Man", "Iron Man", "Deadpool", "Doctor Strange", "Hulk", "Thor")
@@ -26,7 +30,7 @@ object MessageGen {
     "I'm Just A Kid From Brooklyn"
   )
 
-  def next(): Message = Message(
+  def apply(): Message = Message(
     id.getAndIncrement(),
     rndElem(badGuys),
     rndElem(topHeroes),

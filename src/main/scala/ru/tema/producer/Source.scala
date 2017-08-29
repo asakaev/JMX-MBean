@@ -2,18 +2,17 @@ package ru.tema.producer
 
 import java.util.concurrent.ExecutorService
 
-import ru.tema.producer.MessageGen.next
-
-class Source(delay: Long)(implicit es: ExecutorService) {
-  def subscribe(handler: Message => Unit): Unit = es.execute(() => {
+class Source[A, B](delay: Long, gen: Generator[A])(implicit es: ExecutorService) {
+  def subscribe(f: A => B): Unit = es.execute(() => {
     while (true) {
-      handler(next())
+      f(gen())
       Thread.sleep(delay)
     }
   })
 }
 
 object Source {
-  def apply(delay: Long = 1000)(implicit es: ExecutorService): Source =
-    new Source(delay)
+  def apply(delay: Long = 1000, gen: Generator[Message] = new MessageGen)
+           (implicit es: ExecutorService): Source[Message, Unit] =
+    new Source(delay, gen)
 }
