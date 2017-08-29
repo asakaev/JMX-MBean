@@ -13,5 +13,5 @@ trait MessageBrokerMBean {
   def senders: util.Set[String]
   def recipients: util.Set[String]
   def dropQueue(): Int
-  def lastMessages(n: Int): util.Set[String]
+  def lastMessages(n: Int): util.List[String]
 }
