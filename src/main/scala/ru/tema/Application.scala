@@ -1,12 +1,23 @@
 package ru.tema
 
-import ru.tema.TimeUtils.{ clearInterval, setInterval, setTimeout }
+import java.lang.management.ManagementFactory
+import java.util.concurrent.Executors.newSingleThreadExecutor
+import javax.management.ObjectName
+
+import ru.tema.broker.MessageBroker
+import ru.tema.producer.Source
 
 object Application extends App {
-  def beep() = println("Beep")
+  implicit val es = newSingleThreadExecutor
 
-  val timer = setInterval(beep, 1000)
-  setTimeout(() => clearInterval(timer), 5000)
+  val messageBroker = new MessageBroker
 
-  println("App started")
+  ManagementFactory.getPlatformMBeanServer.registerMBean(
+    messageBroker, new ObjectName("ru.tema:type=MessageBroker")
+  )
+
+  Source().subscribe(message => {
+    println(message)
+    messageBroker.send(message)
+  })
 }
