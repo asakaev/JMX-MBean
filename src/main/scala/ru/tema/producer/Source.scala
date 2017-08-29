@@ -2,16 +2,20 @@ package ru.tema.producer
 
 import java.util.concurrent.ExecutorService
 
-class Source[T](delay: Long, gen: Generator[T])(implicit es: ExecutorService) {
+trait DataStream[T] {
+  def next(): T
+}
+
+class Source[T](delay: Long, ds: DataStream[T])(implicit es: ExecutorService) {
   def subscribe(f: T => Any): Unit = es.execute(() => {
     while (true) {
-      f(gen())
+      f(ds.next())
       Thread.sleep(delay)
     }
   })
 }
 
 object Source {
-  def apply(delay: Long = 1000, gen: Generator[Message] = new MessageGen)
-           (implicit es: ExecutorService): Source[Message] = new Source(delay, gen)
+  def apply(delay: Long = 1000, ds: DataStream[Message] = new MessageStream)
+           (implicit es: ExecutorService): Source[Message] = new Source(delay, ds)
 }
