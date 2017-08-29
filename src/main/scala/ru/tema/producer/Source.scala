@@ -2,7 +2,6 @@ package ru.tema.producer
 
 import java.util.concurrent.ExecutorService
 
-import ru.tema.broker.Message
 import ru.tema.producer.MessageGen.next
 
 class Source(delay: Long)(implicit es: ExecutorService) {

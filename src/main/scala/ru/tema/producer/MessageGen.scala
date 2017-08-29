@@ -1,14 +1,15 @@
 package ru.tema.producer
 
-import java.time.LocalDateTime
-import java.util.UUID
-
-import ru.tema.broker.Message
+import java.time.LocalTime
+import java.util.concurrent.atomic.AtomicInteger
 
 import scala.util.Random
 
+case class Message(id: Int, from: String, to: String, text: String, ctime: LocalTime)
+
 object MessageGen {
 
+  private val id = new AtomicInteger(1)
   private val topHeroes = Seq("Spider-Man", "Iron Man", "Deadpool", "Doctor Strange", "Hulk", "Thor")
   private val badGuys = Seq("Ultron", "Loki", "Red Skull", "Mystique", "Thanos", "Ronan", "Magneto")
 
@@ -26,11 +27,11 @@ object MessageGen {
   )
 
   def next(): Message = Message(
-    UUID.randomUUID.toString,
+    id.getAndIncrement(),
     rndElem(badGuys),
     rndElem(topHeroes),
     rndElem(quotes),
-    LocalDateTime.now
+    LocalTime.now
   )
 
   private def rndElem[T](xs: Seq[T]): T = xs(Random.nextInt(xs.size))
