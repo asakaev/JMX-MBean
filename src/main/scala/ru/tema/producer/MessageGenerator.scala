@@ -7,8 +7,11 @@ import scala.util.Random
 
 case class Message(id: Int, from: String, to: String, text: String, ctime: LocalTime)
 
-class MessageStream extends DataStream[Message] {
+trait Generator[T] {
+  def next(): T
+}
 
+class MessageGenerator extends Generator[Message] {
   private val id = new AtomicInteger(1)
   private val heroes = Seq("Spider-Man", "Iron Man", "Deadpool", "Doctor Strange", "Hulk", "Thor")
   private val badGuys = Seq("Ultron", "Loki", "Red Skull", "Mystique", "Thanos", "Ronan", "Magneto")
