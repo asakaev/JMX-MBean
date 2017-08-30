@@ -7,11 +7,7 @@ import scala.util.Random
 
 case class Message(id: Int, from: String, to: String, text: String, ctime: LocalTime)
 
-trait Generator[T] {
-  def next(): T
-}
-
-class MessageGenerator extends Generator[Message] {
+class MessageGenerator extends Iterator[Message] {
   private val id = new AtomicInteger(1)
   private val heroes = Seq("Spider-Man", "Iron Man", "Deadpool", "Doctor Strange", "Hulk", "Thor")
   private val badGuys = Seq("Ultron", "Loki", "Red Skull", "Mystique", "Thanos", "Ronan", "Magneto")
@@ -29,7 +25,9 @@ class MessageGenerator extends Generator[Message] {
     "I'm Just A Kid From Brooklyn"
   )
 
-  def next() = Message(id.getAndIncrement, rndElem(badGuys), rndElem(heroes), rndElem(quotes), LocalTime.now)
+  override def hasNext: Boolean = true
+  override def next(): Message =
+    Message(id.getAndIncrement, rndElem(badGuys), rndElem(heroes), rndElem(quotes), LocalTime.now)
 
   private def rndElem[T](xs: Seq[T]): T = xs(Random.nextInt(xs.size))
 }
