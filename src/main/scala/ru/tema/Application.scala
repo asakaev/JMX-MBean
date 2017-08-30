@@ -5,7 +5,7 @@ import java.util.concurrent.Executors.newSingleThreadExecutor
 import javax.management.ObjectName
 
 import ru.tema.broker.MessageBroker
-import ru.tema.producer.Source
+import ru.tema.producer.MessageSource
 
 object Application extends App {
   implicit val es = newSingleThreadExecutor
@@ -16,8 +16,5 @@ object Application extends App {
     messageBroker, new ObjectName("ru.tema:type=MessageBroker")
   )
 
-  Source().subscribe(message => {
-    println(message)
-    messageBroker.send(message)
-  })
+  MessageSource().subscribe(messageBroker)
 }
