@@ -1,21 +1,19 @@
 package ru.tema.producer
 
-import java.util.concurrent.ExecutorService
-
 import org.reactivestreams.{ Publisher, Subscriber, Subscription }
 
 import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future }
 
-class MessageSource[T](delay: Duration, g: Generator[T])(implicit es: ExecutorService) extends Publisher[T] {
+class MessageSource[T](delay: Duration, g: Generator[T])(implicit ec: ExecutionContext) extends Publisher[T] {
   private var subscriber: Option[Subscriber[_ >: T]] = None
 
   private lazy val subscription = new Subscription {
-    override def request(n: Long): Unit = es.execute(() => {
-      subscriber.foreach(s => {
-        Thread.sleep(delay.toMillis)
-        s.onNext(g.next())
-      })
+    override def request(n: Long): Unit = subscriber.foreach(s => Future {
+      Thread.sleep(delay.toMillis)
+      s.onNext(g.next())
     })
+
     override def cancel(): Unit = subscriber = None
   }
 
@@ -31,5 +29,5 @@ class MessageSource[T](delay: Duration, g: Generator[T])(implicit es: ExecutorSe
 
 object MessageSource {
   def apply(delay: Duration = 1.second, g: Generator[Message] = new MessageGenerator)
-           (implicit es: ExecutorService): MessageSource[Message] = new MessageSource(delay, g)
+           (implicit ec: ExecutionContext): MessageSource[Message] = new MessageSource(delay, g)
 }

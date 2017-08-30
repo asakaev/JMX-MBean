@@ -7,8 +7,10 @@ import javax.management.ObjectName
 import ru.tema.broker.MessageBroker
 import ru.tema.producer.MessageSource
 
+import scala.concurrent.ExecutionContext
+
 object Application extends App {
-  implicit val es = newSingleThreadExecutor
+  implicit val ec = ExecutionContext.fromExecutor(newSingleThreadExecutor)
 
   val messageBroker = new MessageBroker
 
