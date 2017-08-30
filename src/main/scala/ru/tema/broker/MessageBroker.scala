@@ -9,18 +9,18 @@ import scala.collection.JavaConverters._
 import scala.collection.concurrent.TrieMap
 
 class MessageBroker extends Subscriber[Message] with MessageBrokerMBean {
-  private var subscription: Subscription = _
+  private var subscription: Option[Subscription] = None
   private val messages = new TrieMap[Int, Message]
 
   override def onSubscribe(s: Subscription): Unit = {
-    subscription = s
-    subscription.request(1)
+    subscription = Some(s)
+    subscription.foreach(_.request(1))
   }
 
   override def onNext(message: Message): Unit = {
-    println(s"Received $message")
+    println(s"Broker received $message")
     messages.update(message.id, message)
-    subscription.request(1)
+    subscription.foreach(_.request(1))
   }
 
   override def getQueuedMessagesCount: Int = messages.size
